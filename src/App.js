@@ -1,16 +1,17 @@
 import React from "react";
 import ReactDOM from "react-dom";
-// import { Router, Link } from "@reach/router";
-import MyEditor from "./Editor";
+import { Router } from "@reach/router";
+
+import Join from "./Components/Join/Join";
+import Study from "./Components/Study/Study";
 
 const App = () => {
   return (
     <div>
-      Hello world!
-      <MyEditor path="/"></MyEditor>
-      {/* <Router>
-        <MyEditor path="/"></MyEditor>
-      </Router> */}
+      <Router>
+        <Join path="/"></Join>
+        <Study path="/study"></Study>
+      </Router>
     </div>
   );
 };

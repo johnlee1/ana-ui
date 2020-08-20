@@ -10,6 +10,7 @@
   "rules": {
     "react/prop-types": 0,
     "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
     "no-console": "warn"
   },
   "parser": "babel-eslint",
