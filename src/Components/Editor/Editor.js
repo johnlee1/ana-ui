@@ -1,16 +1,57 @@
-import React from "react";
+import React, { useState } from "react";
 import { Editor, RichUtils, convertToRaw } from "draft-js";
 import "draft-js/dist/Draft.css";
 import uuid from "react-uuid";
 
 import "./Editor.css";
 
-// let socket;
+import CommentIcon from "@material-ui/icons/Comment";
+import Grid from "@material-ui/core/Grid";
 
 const MyEditor = (props) => {
+  const [showHighlightButton, setShowHighlightButton] = useState(false);
+  const [highlightBtnDistanceToTop, setHighlightBtnDistanceToTop] = useState(0);
+  const [highlightedTexts, setHighlightedTexts] = useState([]);
   const dataOffsetKeyString = "data-offset-key";
 
   const handleEditorChange = (editorState) => {
+    const selection = window.getSelection();
+
+    if (selection.toString().length === 0) {
+      setShowHighlightButton(false);
+      let found;
+
+      // see if we need to display comment
+      highlightedTexts.some((span) => {
+        found = selection.containsNode(span);
+        if (found) {
+          const dataOffsetKey = span.parentElement.parentElement.getAttribute(
+            dataOffsetKeyString
+          );
+          props.setCommentDataOffsetKey(dataOffsetKey);
+        }
+        return found;
+      });
+      if (!found) {
+        props.setCommentDataOffsetKey("");
+      }
+    }
+
+    // see if selection was made so that we know when to show the highlight button
+    if (selection.toString().length > 0) {
+      const selectedRange = selection.getRangeAt(0);
+      const startNode = selectedRange.startContainer;
+      const startOffset = selectedRange.startOffset;
+
+      const range = document.createRange();
+      range.setStart(startNode, startOffset);
+      range.setEnd(startNode, startOffset);
+      const top = range.getBoundingClientRect().top;
+
+      setHighlightBtnDistanceToTop(top);
+      setShowHighlightButton(true);
+    }
+
     props.setEditorState(editorState);
     const outgoingData = {
       editor: convertToRaw(editorState.getCurrentContent()),
@@ -32,6 +73,21 @@ const MyEditor = (props) => {
       RichUtils.toggleInlineStyle(props.editorState, "HIGHLIGHT")
     );
 
+    // const selectedRange = window.getSelection().getRangeAt(0);
+    // const startNode = selectedRange.startContainer;
+    // const startOffset = selectedRange.startOffset;
+    // const range = document.createRange();
+    // range.setStart(startNode, startOffset);
+    // range.setEnd(startNode, startOffset);
+    // const top = range.getBoundingClientRect().top;
+    // const comment = {
+    //   id: uuid(),
+    //   name: props.name,
+    //   text: "",
+    //   distanceToTop: top,
+    // };
+    // props.addComment(comment);
+
     // Select the node that will be observed for mutations
     const currentSpan = getSelectedSpan();
 
@@ -51,6 +107,10 @@ const MyEditor = (props) => {
           if (selection.type === "None") return;
           const highlightedTextSpan = selection.getRangeAt(0).startContainer
             .parentElement.parentElement;
+          setHighlightedTexts((highlightedTexts) => [
+            ...highlightedTexts,
+            selection.getRangeAt(0).startContainer,
+          ]);
           const highlightedTextSpanDistanceToTop = highlightedTextSpan.getBoundingClientRect()
             .top;
           const dataOffsetKey = highlightedTextSpan.getAttribute(
@@ -59,6 +119,7 @@ const MyEditor = (props) => {
 
           const comment = {
             id: uuid(),
+            name: props.name,
             text: "",
             dataOffsetKey: dataOffsetKey,
             distanceToTop: highlightedTextSpanDistanceToTop,
@@ -80,12 +141,32 @@ const MyEditor = (props) => {
 
   return (
     <div>
-      <button onMouseDown={_onHighlightClick}>Highlight</button>
-      <Editor
-        customStyleMap={styleMap}
-        editorState={props.editorState}
-        onChange={handleEditorChange}
-      />
+      {highlightBtnDistanceToTop}
+      <Grid container spacing={0}>
+        <Grid item xs={11}>
+          <Editor
+            customStyleMap={styleMap}
+            editorState={props.editorState}
+            onChange={handleEditorChange}
+          />
+        </Grid>
+        <Grid item xs={1}>
+          {showHighlightButton && (
+            <div
+              style={{
+                position: "absolute",
+                top: highlightBtnDistanceToTop + "px",
+                marginLeft: "-35px",
+              }}
+            >
+              <CommentIcon
+                onMouseDown={_onHighlightClick}
+                className="commentIcon"
+              />
+            </div>
+          )}
+        </Grid>
+      </Grid>
     </div>
   );
 };

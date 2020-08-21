@@ -16,10 +16,10 @@ const Comment = (props) => {
 
   const submitComment = () => {
     setCommentSubmitted(true);
-    props.commentSubmittedCallback(props.uuid, comment);
+    props.commentSubmitted(props.uuid, comment);
   };
   const cancelComment = () => {
-    props.commentCancelledCallback(props.uuid);
+    props.commentCancelled(props.uuid);
   };
 
   const useStyles = makeStyles({
@@ -49,9 +49,9 @@ const Comment = (props) => {
                 <TextField
                   id="outlined-multiline-flexible"
                   label="Comment"
-                  multiline
                   rowsMax={20}
                   size="small"
+                  multiline
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   variant="outlined"
@@ -62,6 +62,7 @@ const Comment = (props) => {
                 color="primary"
                 size="small"
                 disableElevation
+                disabled={comment.length < 1}
                 onClick={(e) => {
                   e.preventDefault();
                   submitComment();

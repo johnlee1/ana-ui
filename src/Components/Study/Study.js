@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { EditorState, ContentState, RichUtils, convertFromRaw } from "draft-js";
 import io from "socket.io-client";
 
@@ -8,6 +8,8 @@ import MyEditor from "../Editor/Editor";
 
 import BibleText from "../../Text";
 
+import "./Study.css";
+
 import Grid from "@material-ui/core/Grid";
 
 let socket;
@@ -15,8 +17,10 @@ let socket;
 const Study = (props) => {
   const endpoint = "http://127.0.0.1:4001";
   const [comments, setComments] = useState([]);
+  const [commentDataOffsetKey, setCommentDataOffsetKey] = useState("");
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
+  const [users, setUsers] = useState([]);
   const [editorState, setEditorState] = useState(
     EditorState.createWithContent(
       ContentState.createFromText(BibleText.isaiah6)
@@ -40,6 +44,10 @@ const Study = (props) => {
         setComments(data.comments);
       }
     });
+    socket.on("RoomData", (data) => {
+      const { users } = data;
+      setUsers(users);
+    });
 
     return () => {
       socket.emit("disconnect");
@@ -56,7 +64,7 @@ const Study = (props) => {
     setComments((comments) => [...comments, comment]);
   };
 
-  const commentSubmittedCallback = useCallback((uuid, text) => {
+  const commentSubmitted = (uuid, text) => {
     let newComments = [...comments];
     let comment = newComments.find((comment) => comment.id === uuid);
     comment.text = text;
@@ -66,21 +74,21 @@ const Study = (props) => {
       comments: comments,
     };
     sendDataOverSocket("data", outgoingData);
-  });
+  };
 
-  const commentCancelledCallback = useCallback((uuid) => {
+  const commentCancelled = (uuid) => {
     let newComments = [...comments];
     newComments = newComments.filter((comment) => comment.id !== uuid);
     setComments(newComments);
 
     // remove comment highlight
     setEditorState(RichUtils.toggleInlineStyle(editorState, "HIGHLIGHT"));
-  });
+  };
 
   return (
-    <div>
-      <HeaderBar room={room}></HeaderBar>
-      <Grid container spacing={3}>
+    <div className="study">
+      <HeaderBar room={room} users={users}></HeaderBar>
+      <Grid container spacing={1}>
         <Grid item xs={1}></Grid>
         <Grid item xs={7}>
           <MyEditor
@@ -90,13 +98,16 @@ const Study = (props) => {
             setEditorState={setEditorState}
             sendDataOverSocket={sendDataOverSocket}
             addComment={addComment}
+            setCommentDataOffsetKey={setCommentDataOffsetKey}
           />
         </Grid>
         <Grid item xs={3}>
           <Comments
+            commentDataOffsetKey={commentDataOffsetKey}
+            setCommentDataOffsetKey={setCommentDataOffsetKey}
             comments={comments}
-            commentSubmittedCallback={commentSubmittedCallback}
-            commentCancelledCallback={commentCancelledCallback}
+            commentSubmitted={commentSubmitted}
+            commentCancelled={commentCancelled}
           />
         </Grid>
       </Grid>

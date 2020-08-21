@@ -1,0 +1,16 @@
+.icon {
+  background-color: rgb(253, 87, 61);
+  border-radius: 50%;
+  height: 28px;
+  width: 28px;
+  left: 0px;
+  padding: 0px;
+  border-style: solid;
+  border-color: white;
+  margin: 0px 0px 0px -8px;
+}
+
+.icons {
+  display: inline-block;
+  position: relative;
+}
