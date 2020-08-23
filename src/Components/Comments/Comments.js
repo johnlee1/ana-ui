@@ -2,6 +2,8 @@ import React from "react";
 
 import Comment from "../Comment/Comment";
 
+import "./Comments.css";
+
 import Grid from "@material-ui/core/Grid";
 
 const Comments = (props) => {
@@ -22,7 +24,8 @@ const Comments = (props) => {
                 style={{
                   position: "absolute",
                   top: comment.distanceToTop + "px",
-                  marginLeft: "-100px",
+                  width: "20vw",
+                  marginLeft: "-10px",
                 }}
               >
                 <Comment
@@ -31,7 +34,6 @@ const Comments = (props) => {
                   commentSubmitted={props.commentSubmitted}
                   commentCancelled={props.commentCancelled}
                   text={comment.text}
-                  distanceToTop={comment.distanceToTop}
                 ></Comment>
               </div>
             ))}
@@ -40,18 +42,17 @@ const Comments = (props) => {
           {props.comments
             .filter(
               (comment) =>
-                comment.dataOffsetKey !== props.commentDataOffsetKey && // highlight clicked on
-                comment.text !== "" // comment to be written
+                comment.dataOffsetKey !== props.commentDataOffsetKey && // highlight not clicked on
+                comment.text !== "" // comment is written
             )
             .map((comment) => (
-              <div key={comment.id}>
+              <div key={comment.id} className="comments">
                 <Comment
                   uuid={comment.id}
                   name={comment.name}
                   commentSubmitted={props.commentSubmitted}
                   commentCancelled={props.commentCancelled}
                   text={comment.text}
-                  distanceToTop={comment.distanceToTop}
                 ></Comment>
               </div>
             ))}

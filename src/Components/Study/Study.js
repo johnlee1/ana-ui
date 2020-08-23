@@ -50,7 +50,7 @@ const Study = (props) => {
     });
 
     return () => {
-      socket.emit("disconnect");
+      socket.emit("disconnect", { room });
       socket.off();
     };
   }, [endpoint, props.location.state]);
@@ -88,8 +88,7 @@ const Study = (props) => {
   return (
     <div className="study">
       <HeaderBar room={room} users={users}></HeaderBar>
-      <Grid container spacing={1}>
-        <Grid item xs={1}></Grid>
+      <Grid container spacing={0}>
         <Grid item xs={7}>
           <MyEditor
             name={name}
@@ -101,7 +100,7 @@ const Study = (props) => {
             setCommentDataOffsetKey={setCommentDataOffsetKey}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={5}>
           <Comments
             commentDataOffsetKey={commentDataOffsetKey}
             setCommentDataOffsetKey={setCommentDataOffsetKey}

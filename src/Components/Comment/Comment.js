@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import "./Comment.css";
 
@@ -13,6 +13,15 @@ import Typography from "@material-ui/core/Typography";
 const Comment = (props) => {
   const [comment, setComment] = useState(props.text);
   const [commentSubmitted, setCommentSubmitted] = useState(props.text !== "");
+  const textfieldRef = useRef(null);
+
+  useEffect(() => {
+    if (!commentSubmitted) {
+      setTimeout(function () {
+        textfieldRef.current.focus();
+      }, 1);
+    }
+  });
 
   const submitComment = () => {
     setCommentSubmitted(true);
@@ -22,9 +31,13 @@ const Comment = (props) => {
     props.commentCancelled(props.uuid);
   };
 
+  const onBlur = () => {
+    if (!submitComment) cancelComment();
+  };
+
   const useStyles = makeStyles({
     root: {
-      minWidth: 275,
+      minWidth: 50,
     },
     title: {
       color: "rgb(60, 64, 67)",
@@ -53,8 +66,10 @@ const Comment = (props) => {
                   size="small"
                   multiline
                   value={comment}
+                  inputRef={textfieldRef}
                   onChange={(e) => setComment(e.target.value)}
                   variant="outlined"
+                  onBlur={onBlur}
                 />
               </FormControl>
               <Button

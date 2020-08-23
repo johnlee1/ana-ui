@@ -6,7 +6,6 @@ import uuid from "react-uuid";
 import "./Editor.css";
 
 import CommentIcon from "@material-ui/icons/Comment";
-import Grid from "@material-ui/core/Grid";
 
 const MyEditor = (props) => {
   const [showHighlightButton, setShowHighlightButton] = useState(false);
@@ -141,32 +140,26 @@ const MyEditor = (props) => {
 
   return (
     <div>
-      {highlightBtnDistanceToTop}
-      <Grid container spacing={0}>
-        <Grid item xs={11}>
-          <Editor
-            customStyleMap={styleMap}
-            editorState={props.editorState}
-            onChange={handleEditorChange}
+      <Editor
+        customStyleMap={styleMap}
+        editorState={props.editorState}
+        onChange={handleEditorChange}
+      />
+
+      {showHighlightButton && (
+        <div
+          style={{
+            position: "absolute",
+            top: highlightBtnDistanceToTop + "px",
+            marginLeft: "56vw",
+          }}
+        >
+          <CommentIcon
+            onMouseDown={_onHighlightClick}
+            className="commentIcon"
           />
-        </Grid>
-        <Grid item xs={1}>
-          {showHighlightButton && (
-            <div
-              style={{
-                position: "absolute",
-                top: highlightBtnDistanceToTop + "px",
-                marginLeft: "-35px",
-              }}
-            >
-              <CommentIcon
-                onMouseDown={_onHighlightClick}
-                className="commentIcon"
-              />
-            </div>
-          )}
-        </Grid>
-      </Grid>
+        </div>
+      )}
     </div>
   );
 };
