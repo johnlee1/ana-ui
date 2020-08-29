@@ -15,7 +15,8 @@ import Grid from "@material-ui/core/Grid";
 let socket;
 
 const Study = (props) => {
-  const endpoint = "http://127.0.0.1:4001";
+  const endpoint =
+    "http://anaapi-env.eba-5hhwjjyg.us-east-2.elasticbeanstalk.com/";
   const [comments, setComments] = useState([]);
   const [commentDataOffsetKey, setCommentDataOffsetKey] = useState("");
   const [name, setName] = useState("");
