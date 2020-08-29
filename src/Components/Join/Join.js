@@ -12,27 +12,39 @@ const Join = () => {
 
   return (
     <div className="main">
-      <TextField
-        id="outlined-basic"
-        label="Name"
-        variant="outlined"
-        onChange={(e) => setName(e.target.value)}
-      />
-      <TextField
-        id="outlined-basic"
-        label="Room Code"
-        variant="outlined"
-        onChange={(e) => setRoom(e.target.value)}
-      />
-      <Link
-        onClick={(event) => (!name || !room ? event.preventDefault() : null)}
-        to="/study"
-        state={{ name: name, room: room }}
-      >
-        <Button variant="outlined" color="primary">
-          Join Room
-        </Button>
-      </Link>
+      <div>
+        <div className="title">ANA</div>
+        <div className="inputField">
+          <TextField
+            id="outlined-basic"
+            label="Name"
+            variant="outlined"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+        <div className="inputField">
+          <TextField
+            id="outlined-basic"
+            label="Room Code"
+            variant="outlined"
+            onChange={(e) => setRoom(e.target.value)}
+          />
+        </div>
+        <div>
+          <Link
+            onClick={(event) =>
+              !name || !room ? event.preventDefault() : null
+            }
+            to="/study"
+            state={{ name: name, room: room }}
+            style={{ textDecoration: "none" }}
+          >
+            <Button variant="outlined" color="primary">
+              Join Room
+            </Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

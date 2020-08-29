@@ -3,4 +3,16 @@
   justify-content: center;
   text-align: center;
   align-items: center;
+  height: 100vh;
+}
+
+.inputField {
+  margin: 15px;
+}
+
+.title {
+  font-family: Roboto;
+  font-weight: 300;
+  font-size: 4rem;
+  margin-bottom: 3rem;
 }
