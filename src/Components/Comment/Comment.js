@@ -46,6 +46,9 @@ const Comment = (props) => {
       letterSpacing: "0.25px",
       lineHeight: "20px",
     },
+    buttonPadding: {
+      marginRight: "0.5rem",
+    },
   });
   const classes = useStyles();
 
@@ -59,20 +62,24 @@ const Comment = (props) => {
           ) : (
             <div>
               <FormControl fullWidth>
-                <TextField
-                  id="outlined-multiline-flexible"
-                  label="Comment"
-                  rowsMax={20}
-                  size="small"
-                  multiline
-                  value={comment}
-                  inputRef={textfieldRef}
-                  onChange={(e) => setComment(e.target.value)}
-                  variant="outlined"
-                  onBlur={onBlur}
-                />
+                <div className="textFieldInput">
+                  <TextField
+                    id="outlined-multiline-flexible"
+                    label="Comment"
+                    rowsMax={20}
+                    size="small"
+                    multiline
+                    fullWidth
+                    value={comment}
+                    inputRef={textfieldRef}
+                    onChange={(e) => setComment(e.target.value)}
+                    variant="outlined"
+                    onBlur={onBlur}
+                  />
+                </div>
               </FormControl>
               <Button
+                className={classes.buttonPadding}
                 variant="contained"
                 color="primary"
                 size="small"

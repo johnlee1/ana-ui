@@ -5,3 +5,7 @@
   letter-spacing: 0.25px;
   line-height: 20px;
 }
+
+.textFieldInput {
+  margin: 1rem 0 1rem 0;
+}
