@@ -59,6 +59,10 @@ const MyEditor = (props) => {
     props.sendDataOverSocket("data", outgoingData);
   };
 
+  const handleBeforeInput = (command, editorState, eventTimeStamp) => {
+    return "handled"; // don't allow edits to the text
+  };
+
   // let's find a more elegant solution in the future
   const getSelectedSpan = () => {
     const selection2 = window.getSelection();
@@ -144,6 +148,7 @@ const MyEditor = (props) => {
         customStyleMap={styleMap}
         editorState={props.editorState}
         onChange={handleEditorChange}
+        handleBeforeInput={handleBeforeInput}
       />
 
       {showHighlightButton && (
