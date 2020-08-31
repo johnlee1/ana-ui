@@ -59,8 +59,23 @@ const MyEditor = (props) => {
     props.sendDataOverSocket("data", outgoingData);
   };
 
+  const handleReturn = (e, editorState) => {
+    return "handled"; // don't allow edits to the text
+  };
+
+  const handleKeyCommand = (command, editorState, eventTimeStamp) => {
+    return "handled"; // don't allow edits to the text
+  };
+
   const handleBeforeInput = (command, editorState, eventTimeStamp) => {
     return "handled"; // don't allow edits to the text
+  };
+
+  const keyBindingFn = (e) => {
+    if (e.key === "Backspace" || e.key === "Delete") {
+      return "delete";
+    }
+    return;
   };
 
   // let's find a more elegant solution in the future
@@ -148,7 +163,10 @@ const MyEditor = (props) => {
         customStyleMap={styleMap}
         editorState={props.editorState}
         onChange={handleEditorChange}
+        handleReturn={handleReturn}
         handleBeforeInput={handleBeforeInput}
+        keyBindingFn={keyBindingFn}
+        handleKeyCommand={handleKeyCommand}
       />
 
       {showHighlightButton && (
