@@ -22,6 +22,7 @@ const Study = (props) => {
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [users, setUsers] = useState([]);
+  const [dataOffsetKeys, setDataOffsetKeys] = useState([]);
   const [editorState, setEditorState] = useState(
     EditorState.createWithContent(
       ContentState.createFromText(BibleText.isaiah6)
@@ -43,6 +44,9 @@ const Study = (props) => {
       }
       if (data.comments) {
         setComments(data.comments);
+      }
+      if (data.dataOffsetKeys) {
+        setDataOffsetKeys(data.dataOffsetKeys);
       }
     });
     socket.on("RoomData", (data) => {
@@ -73,6 +77,7 @@ const Study = (props) => {
 
     const outgoingData = {
       comments: comments,
+      dataOffsetKeys: dataOffsetKeys,
     };
     sendDataOverSocket("data", outgoingData);
   };
@@ -99,6 +104,8 @@ const Study = (props) => {
             sendDataOverSocket={sendDataOverSocket}
             addComment={addComment}
             setCommentDataOffsetKey={setCommentDataOffsetKey}
+            dataOffsetKeys={dataOffsetKeys}
+            setDataOffsetKeys={setDataOffsetKeys}
           />
         </Grid>
         <Grid item xs={5}>

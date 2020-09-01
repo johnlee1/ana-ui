@@ -10,7 +10,6 @@ import CommentIcon from "@material-ui/icons/Comment";
 const MyEditor = (props) => {
   const [showHighlightButton, setShowHighlightButton] = useState(false);
   const [highlightBtnDistanceToTop, setHighlightBtnDistanceToTop] = useState(0);
-  const [highlightedTexts, setHighlightedTexts] = useState([]);
   const dataOffsetKeyString = "data-offset-key";
 
   const handleEditorChange = (editorState) => {
@@ -21,12 +20,11 @@ const MyEditor = (props) => {
       let found;
 
       // see if we need to display comment
-      highlightedTexts.some((span) => {
-        found = selection.containsNode(span);
+      props.dataOffsetKeys.some((dataOffsetKey) => {
+        const attribute = `span[data-offset-key='${dataOffsetKey}']`;
+        const span = document.querySelector(attribute);
+        found = selection.containsNode(span.childNodes[0].childNodes[0]); // text node
         if (found) {
-          const dataOffsetKey = span.parentElement.parentElement.getAttribute(
-            dataOffsetKeyString
-          );
           props.setCommentDataOffsetKey(dataOffsetKey);
         }
         return found;
@@ -125,15 +123,16 @@ const MyEditor = (props) => {
           if (selection.type === "None") return;
           const highlightedTextSpan = selection.getRangeAt(0).startContainer
             .parentElement.parentElement;
-          setHighlightedTexts((highlightedTexts) => [
-            ...highlightedTexts,
-            selection.getRangeAt(0).startContainer,
-          ]);
           const highlightedTextSpanDistanceToTop = highlightedTextSpan.getBoundingClientRect()
             .top;
           const dataOffsetKey = highlightedTextSpan.getAttribute(
             dataOffsetKeyString
           );
+
+          props.setDataOffsetKeys((test) => [
+            ...props.dataOffsetKeys,
+            dataOffsetKey,
+          ]);
 
           const comment = {
             id: uuid(),
