@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Editor, RichUtils } from "draft-js";
 import "draft-js/dist/Draft.css";
 import uuid from "react-uuid";
@@ -10,7 +10,20 @@ import CommentIcon from "@material-ui/icons/Comment";
 const MyEditor = (props) => {
   const [showHighlightButton, setShowHighlightButton] = useState(false);
   const [highlightBtnDistanceToTop, setHighlightBtnDistanceToTop] = useState(0);
+  const [editorRight, setEditorRight] = useState(0);
   const dataOffsetKeyString = "data-offset-key";
+
+  useEffect(() => {
+    const handleResize = () => {
+      const attribute = `div[class='DraftEditor-root']`;
+      const draftEditor = document.querySelector(attribute);
+      const draftRightLength = draftEditor.getBoundingClientRect().right;
+      setEditorRight(draftRightLength - 20);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+  }, []);
 
   const handleEditorChange = (editorState) => {
     if (props.editorChange()) return; // give props.editorChange a better name! returns true if Study.js decides that nothing should be done
@@ -181,7 +194,7 @@ const MyEditor = (props) => {
           style={{
             position: "absolute",
             top: highlightBtnDistanceToTop + "px",
-            marginLeft: "56vw",
+            marginLeft: editorRight + "px",
           }}
         >
           <CommentIcon
