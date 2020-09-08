@@ -8,4 +8,4 @@ React, Draft.js, Material UI
 
 ## deployment
 
-Master branch set up to deploy automatically to AWS.
+The master branch is set up to deploy automatically to AWS.
