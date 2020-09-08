@@ -4,7 +4,7 @@ This is the client-side code for Ana. Ana allows you to collaborately comment on
 
 ## tech stack
 
-React, Draft.js, Material UI
+React, Draft.js, Material UI, Socket.io
 
 ## deployment
 
