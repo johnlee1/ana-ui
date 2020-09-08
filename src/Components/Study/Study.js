@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { EditorState, ContentState, RichUtils, convertFromRaw } from "draft-js";
+import {
+  EditorState,
+  ContentState,
+  RichUtils,
+  convertToRaw,
+  convertFromRaw,
+} from "draft-js";
 import io from "socket.io-client";
 
 import Comments from "../Comments/Comments";
@@ -17,8 +23,12 @@ let socket;
 const Study = (props) => {
   const endpoint =
     "http://anaapi-env.eba-5hhwjjyg.us-east-2.elasticbeanstalk.com/";
+  //   const endpoint = "http://localhost:4001";
+  const [commentReady, setCommentReady] = useState(false); // this is for knowing when a comment is ready to be typed in a comment box
   const [comments, setComments] = useState([]);
   const [commentDataOffsetKey, setCommentDataOffsetKey] = useState("");
+  const [currentComment, setCurrentComment] = useState("");
+  const [currentDraftSelection, setCurrentDraftSelection] = useState("");
   const [name, setName] = useState("");
   const [room, setRoom] = useState("");
   const [users, setUsers] = useState([]);
@@ -65,11 +75,19 @@ const Study = (props) => {
     socket.emit(dataName, data);
   };
 
+  // only called when click on highlight button
   const addComment = (comment) => {
-    setComments((comments) => [...comments, comment]);
+    setCurrentComment(comment);
+    setComments([...comments, comment]);
   };
 
   const commentSubmitted = (uuid, text) => {
+    const newEditorState = RichUtils.toggleInlineStyle(
+      editorState,
+      "HIGHLIGHT"
+    );
+    setEditorState(newEditorState);
+
     let newComments = [...comments];
     let comment = newComments.find((comment) => comment.id === uuid);
     comment.text = text;
@@ -78,8 +96,11 @@ const Study = (props) => {
     const outgoingData = {
       comments: comments,
       dataOffsetKeys: dataOffsetKeys,
+      editor: convertToRaw(newEditorState.getCurrentContent()),
     };
     sendDataOverSocket("data", outgoingData);
+    setCurrentComment("");
+    setCommentReady(false);
   };
 
   const commentCancelled = (uuid) => {
@@ -87,8 +108,22 @@ const Study = (props) => {
     newComments = newComments.filter((comment) => comment.id !== uuid);
     setComments(newComments);
 
-    // remove comment highlight
-    setEditorState(RichUtils.toggleInlineStyle(editorState, "HIGHLIGHT"));
+    const newEditorState = EditorState.forceSelection(
+      editorState,
+      currentDraftSelection
+    );
+
+    setEditorState(RichUtils.toggleInlineStyle(newEditorState, "TEMP")); // remove comment highlight
+    setCommentReady(false);
+  };
+
+  //   returns true if Study.js decides that nothing should be done on editor change
+  const editorChange = () => {
+    if (currentComment !== "" && commentReady) {
+      commentCancelled(currentComment.id);
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -106,15 +141,19 @@ const Study = (props) => {
             setCommentDataOffsetKey={setCommentDataOffsetKey}
             dataOffsetKeys={dataOffsetKeys}
             setDataOffsetKeys={setDataOffsetKeys}
+            editorChange={editorChange}
           />
         </Grid>
         <Grid item xs={5}>
           <Comments
+            editorState={editorState}
             commentDataOffsetKey={commentDataOffsetKey}
             setCommentDataOffsetKey={setCommentDataOffsetKey}
             comments={comments}
             commentSubmitted={commentSubmitted}
             commentCancelled={commentCancelled}
+            setCurrentDraftSelection={setCurrentDraftSelection}
+            setCommentReady={setCommentReady}
           />
         </Grid>
       </Grid>

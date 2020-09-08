@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import "./Comment.css";
 
@@ -13,20 +13,28 @@ import Typography from "@material-ui/core/Typography";
 const Comment = (props) => {
   const [comment, setComment] = useState(props.text);
   const [commentSubmitted, setCommentSubmitted] = useState(props.text !== "");
-  const textfieldRef = useRef(null);
 
   useEffect(() => {
     if (!commentSubmitted) {
-      setTimeout(function () {
-        textfieldRef.current.focus();
-      }, 1);
+      const currentDraftSelection = props.editorState.getSelection();
+      props.setCurrentDraftSelection(currentDraftSelection);
     }
-  });
+  }, []);
+
+  const measuredRef = useCallback((node) => {
+    if (node !== null) {
+      setTimeout(function () {
+        node.focus();
+        props.setCommentReady(true);
+      }, 0);
+    }
+  }, []);
 
   const submitComment = () => {
     setCommentSubmitted(true);
     props.commentSubmitted(props.uuid, comment);
   };
+
   const cancelComment = () => {
     props.commentCancelled(props.uuid);
   };
@@ -71,7 +79,7 @@ const Comment = (props) => {
                     multiline
                     fullWidth
                     value={comment}
-                    inputRef={textfieldRef}
+                    inputRef={measuredRef}
                     onChange={(e) => setComment(e.target.value)}
                     variant="outlined"
                     onBlur={onBlur}

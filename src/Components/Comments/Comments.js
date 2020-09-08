@@ -29,11 +29,14 @@ const Comments = (props) => {
                 }}
               >
                 <Comment
+                  editorState={props.editorState}
                   uuid={comment.id}
                   name={comment.name}
                   commentSubmitted={props.commentSubmitted}
                   commentCancelled={props.commentCancelled}
                   text={comment.text}
+                  setCurrentDraftSelection={props.setCurrentDraftSelection}
+                  setCommentReady={props.setCommentReady}
                 ></Comment>
               </div>
             ))}

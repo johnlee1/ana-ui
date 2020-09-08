@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Editor, RichUtils, convertToRaw } from "draft-js";
+import { Editor, RichUtils } from "draft-js";
 import "draft-js/dist/Draft.css";
 import uuid from "react-uuid";
 
@@ -13,17 +13,24 @@ const MyEditor = (props) => {
   const dataOffsetKeyString = "data-offset-key";
 
   const handleEditorChange = (editorState) => {
+    if (props.editorChange()) return; // give props.editorChange a better name! returns true if Study.js decides that nothing should be done
+
     const selection = window.getSelection();
 
     if (selection.toString().length === 0) {
       setShowHighlightButton(false);
-      let found;
+      let found = false;
 
       // see if we need to display comment
       props.dataOffsetKeys.some((dataOffsetKey) => {
         const attribute = `span[data-offset-key='${dataOffsetKey}']`;
         const span = document.querySelector(attribute);
-        found = selection.containsNode(span.childNodes[0].childNodes[0]); // text node
+        if (
+          span != null &&
+          span.childNodes[0] != null &&
+          span.childNodes[0].childNodes[0] != null
+        )
+          found = selection.containsNode(span.childNodes[0].childNodes[0]); // text node
         if (found) {
           props.setCommentDataOffsetKey(dataOffsetKey);
         }
@@ -50,22 +57,17 @@ const MyEditor = (props) => {
     }
 
     props.setEditorState(editorState);
-    const outgoingData = {
-      editor: convertToRaw(editorState.getCurrentContent()),
-    };
-
-    props.sendDataOverSocket("data", outgoingData);
   };
 
-  const handleReturn = (e, editorState) => {
+  const handleReturn = () => {
     return "handled"; // don't allow edits to the text
   };
 
-  const handleKeyCommand = (command, editorState, eventTimeStamp) => {
+  const handleKeyCommand = () => {
     return "handled"; // don't allow edits to the text
   };
 
-  const handleBeforeInput = (command, editorState, eventTimeStamp) => {
+  const handleBeforeInput = () => {
     return "handled"; // don't allow edits to the text
   };
 
@@ -84,25 +86,31 @@ const MyEditor = (props) => {
     return selectedSpan;
   };
 
+  const createComment = () => {
+    const selection = window.getSelection();
+    if (selection.type === "None") return;
+    const highlightedTextSpan = selection.getRangeAt(0).startContainer
+      .parentElement.parentElement;
+    const highlightedTextSpanDistanceToTop = highlightedTextSpan.getBoundingClientRect()
+      .top;
+    const dataOffsetKey = highlightedTextSpan.getAttribute(dataOffsetKeyString);
+
+    props.setDataOffsetKeys(() => [...props.dataOffsetKeys, dataOffsetKey]);
+
+    const comment = {
+      id: uuid(),
+      name: props.name,
+      text: "",
+      dataOffsetKey: dataOffsetKey,
+      distanceToTop: highlightedTextSpanDistanceToTop,
+    };
+    props.addComment(comment);
+  };
+
   const _onHighlightClick = () => {
     props.setEditorState(
-      RichUtils.toggleInlineStyle(props.editorState, "HIGHLIGHT")
+      RichUtils.toggleInlineStyle(props.editorState, "TEMP")
     );
-
-    // const selectedRange = window.getSelection().getRangeAt(0);
-    // const startNode = selectedRange.startContainer;
-    // const startOffset = selectedRange.startOffset;
-    // const range = document.createRange();
-    // range.setStart(startNode, startOffset);
-    // range.setEnd(startNode, startOffset);
-    // const top = range.getBoundingClientRect().top;
-    // const comment = {
-    //   id: uuid(),
-    //   name: props.name,
-    //   text: "",
-    //   distanceToTop: top,
-    // };
-    // props.addComment(comment);
 
     // Select the node that will be observed for mutations
     const currentSpan = getSelectedSpan();
@@ -119,40 +127,40 @@ const MyEditor = (props) => {
             "background-color"
           )
         ) {
-          const selection = window.getSelection();
-          if (selection.type === "None") return;
-          const highlightedTextSpan = selection.getRangeAt(0).startContainer
-            .parentElement.parentElement;
-          const highlightedTextSpanDistanceToTop = highlightedTextSpan.getBoundingClientRect()
-            .top;
-          const dataOffsetKey = highlightedTextSpan.getAttribute(
-            dataOffsetKeyString
-          );
-
-          props.setDataOffsetKeys((test) => [
-            ...props.dataOffsetKeys,
-            dataOffsetKey,
-          ]);
-
-          const comment = {
-            id: uuid(),
-            name: props.name,
-            text: "",
-            dataOffsetKey: dataOffsetKey,
-            distanceToTop: highlightedTextSpanDistanceToTop,
-          };
-          props.addComment(comment);
+          createComment();
         }
       }
       observer.disconnect();
+      observer2.disconnect();
     };
-    const observer = new MutationObserver(callback);
-    observer.observe(currentSpan, config);
+
+    // Options for the observer (which mutations to observe)
+    const config2 = { attributes: true };
+
+    // Callback function to execute when mutations are observed
+    const callback2 = (mutationsList, observer) => {
+      for (let mutation of mutationsList) {
+        if (mutation.type === "attributes") {
+          createComment();
+        }
+      }
+      observer1.disconnect();
+      observer.disconnect();
+    };
+
+    const observer1 = new MutationObserver(callback);
+    observer1.observe(currentSpan, config);
+
+    const observer2 = new MutationObserver(callback2);
+    observer2.observe(currentSpan.childNodes[0], config2);
   };
 
   const styleMap = {
     HIGHLIGHT: {
       backgroundColor: "#faed27",
+    },
+    TEMP: {
+      backgroundColor: "#ffc30b",
     },
   };
 
