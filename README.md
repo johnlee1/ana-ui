@@ -8,4 +8,4 @@ React, Draft.js, Material UI, Socket.io
 
 ## deployment
 
-The master branch is set up to deploy automatically to AWS.
+The master branch is set up to deploy automatically to AWS. The app is viewable at http://anaui.s3-website.us-east-2.amazonaws.com/
